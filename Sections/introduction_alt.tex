@@ -1,0 +1,57 @@
+\section{Introduction}\label{introduction}
+
+\paragraph{}
+Software testing is the prevailing activity for software quality assurance in 
+most industrial settings. Software testing consists in generating a set of representative inputs 
+and oracles, which are exercised in order to compare the outputs against the specifications to assess 
+correctness. 
+One of the intrinsic challenges of testing is to evaluate the \textit{adequacy} 
+of a test suite, that is, establishing whether a test suite exercises 
+the software to a sufficient extent, or has to be augmented with the 
+definition of new test cases. Deciding whether a software has been tested enough is challenging: Ideally, a test suite should be 
+considered adequate when able to reveal all the faults in the program 
+under test, but without knowing in advance the faults present in the 
+code (that is the information that you are investigating with testing), it is impossible to precisely evaluate the thoroughness of a test suite. 
+Thus, researchers proposed different techniques that approximate the 
+thoroughness of a test suite, using other sources of information than the number of detected faults.
+
+\paragraph{}
+These approaches are either based on the specifications or on the 
+structure of the software under test. \textit{Functional techniques} 
+approximate the thoroughness of a test suite by measuring the relative 
+amount of exercised functionality with respect to all the 
+functionalities written in the specifications, while \textit{structural 
+techniques} look at the fraction of executed code entities with respect 
+to their totality. 
+
+\paragraph{}
+In this project I focus on \textit{structural techniques}. These techniques starts from the observation that to effectively reveal a 
+fault, a test suite has to execute the code entities that contain the bug and lead to a failure. 
+Thus, structural adequacy criteria consider a test suite to be adequate only is it is able to exercise the majority of 
+code entities in the program under test. These code entities could be 
+simple elements like statements and branches, or more complex entities 
+such as paths of the control flow graph. 
+
+\paragraph{}
+In the last decades control flow-based criteria, that are criteria that requires the execution of elements of the control flow graph, such as statements and 
+branches, got more and more popular and nowadays they are becoming a standard in many companies and in open source projects. This class of criteria has been the first one to be acknowledged by practitioners, and a crucial factor in their establishment has been the diffusion of robust and efficient tools to automate the coverage computation. 
+
+\paragraph{}
+Besides control flow-based criteria, a promising class of criteria is 
+data flow ones. Data flow criteria use data flow analysis techniques to identify possible data propagation and usage in the program under test, and then approximate the thoroughness of a test suite as the number of covered data relationships at runtime (for instance, pairs of definitions and uses of the same variables). The rational of data flow criteria is that to reveal a fault, is necessary not only to execute the faulty line of the code that perform a faulty computation, but also a subsequent use of that value that lead to a detectable failure. 
+
+\paragraph{}
+However, while data flow criteria have been suggested to be more effective than control flow ones, they are rarely used in practice.
+The major problem is that testers have to put very high effort in checking data flow coverage of test cases. Intuitively, it is more difficult to check if a test case exercised a variable definition as well as a use of that variable at another place, rather than just having to check the coverage of single statements and branches. This emphasizes the importance of automated tool for coverage computation --- however, most existing coverage tools target either statement or branch coverage, not tracking data flow coverage.
+
+\paragraph{}
+The production of tools which can automate data flow coverage computation 
+and guarantee robustness and efficiency as it already happens for control flow 
+criteria is fundamental in the interest of diffusion and study of data flow testing. To this end, in my bachelor project I designed and implemented a component for the computation of 
+the achieved data flow coverage of a test suite by means of dynamic analysis at software execution time.
+
+\paragraph{}
+In this report, I introduce some background concepts necessary in order to understand the purpose of the tool I implemented, and I describe the tool's implementation and evaluation. Section \ref{goal} introduces the goal and the challenges of the project; Section \ref{related} introduces some concepts regarding data flow analysis and criteria; Section \ref{tool} addresses the tool's implementation, and Section \ref{validation} discusses the evaluation; finally, Section  \ref{conclusions} concludes.
+
+
+

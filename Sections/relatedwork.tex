@@ -1,0 +1,217 @@
+\section{Data Flow Analysis and Criteria}\label{related}
+
+\subsection{Overview}
+
+Data Flow models  were originally developed in the field of compiler
+construction. They focus on transmission of information through program variables, and emphasize 
+relations involving transmission of informations. The most fundamental class of data flow model
+study the propagation of definitions of values (\textit{reaching definitions analysis}), striving to capture the flow of data through a program. 
+
+\paragraph{}
+Such analysis techniques and models have been used lately in the context of software testing. In particular, they 
+have been used to approximate the thoroughness of a test suite exploiting the associations between definitions and uses of the same variable. This approach should raise the probability of revealing a fault in the program, unveiling bad computations by enforcing the use of all defined variables. Moreover, it provides a complementary view to the classical structural approaches, emphasizing relations involving transmission of informations. 
+
+
+\subsection{Definition-use pairs}
+A definition-use pair (DU pair) is defined as a pair of two program points, where the definition is the point in which a variable is assigned a
+new value and the use is the point where that value is extracted. A definition of a variable is paired with the use of the same variable only if exists at least one path where the definition can reach the use without being overwritten (killed). Such a path is called \textit{definition-clear path}. More formally: \vspace{2mm}
+
+\begin{center}
+\begin{minipage}{0.9\textwidth}
+\textbf{Definiton: }\textit{A DU pair can exist for some variable \textit{v}, iff there is at least one 
+definition-clear path from the point of definition $v_d$ to the point of use $v_u$. In this case, we can
+define $v_d$ as a \textit{reaching definition} at $v_u$.}  
+\end{minipage}
+\end{center}
+%This concept is 
+%important in the context of practical algorithms to compute DU pairs: as it is 
+%not feasible to search all paths in the program control flow graph, they 
+%summarize the reaching definitions at a node over all the paths reaching that 
+%node. It is possible to efficiently compute reaching definitions of node 
+%\textit{n} having an immediate predecessor \textit{p} by following simple rules:
+%
+%\begin{itemize}
+%  \item If \textit{p} can assign a value to a variable \textit{v}, than 
+%  definition $v_p$ reaches \textit{n}. $v_p$ is generated at \textit{p}.
+%  \item If a definition $v_d$ of \textit{v} reaches a predecessor node 
+%  \textit{p}, and if $v_d$ is not killed, then the definition is propagated from 
+%  \textit{p} to \textit{n}.
+%\end{itemize}
+%
+%From these two observations, it is possible to define a set of equations to be 
+%exploited in algorithms to efficiently perform data flow analysis.
+
+\subsection{Data Flow Testing Criteria}\label{criteria}
+
+Definition-use pairs can be used to define different test requirements and coverage criteria, in order to approximate the thoroughness of a given test suite.
+Herman \cite{Herman} defined one of the earliest and simplest criteria, the \textit{all definitions/uses coverage adequacy criterion}. This criterion requires pairing each variable definition with at least one use, or viceversa. The performed coverage is described by the formula 
+
+\begin{center}
+  $C_{defs} = \frac{\text{number of covered definitions}}
+  {\text{number of definitions}}$
+\end{center}
+
+Later, several data  flow testing criteria where formally defined by Rapps and Weyuker first \cite{Rapps}, and Clarke et al. in a second time \cite{Clarke}. These criteria require the coverage of definition-use pairs in different ways, featuring different levels of complexity.
+As of today, the most popular data flow criteria is the \textit{all DU pairs adequacy criterion}, which 
+requires each DU pair to be covered in at least one program execution. In this 
+case, the test suite will be adequate iff for each DU \textit{du} pair there is at least one 
+test case covering \textit{du}. The corresponding coverage measure is the 
+proportion of covered pairs: 
+
+\begin{center}
+  $C_{DU pairs} = \frac{\text{number of covered DU pairs}}{\text{number of DU pairs}}$
+\end{center}
+%
+There is also an extension of the all DU pairs coverage, called \textit{all DU paths adequacy 
+criterion}. This criterion requires each non-looping DU path to be traversed at 
+least once, in order to cover all possible ways of pairing definitions and uses. 
+This criterion can sometimes reveal faults by exercising a path on which a 
+definition of the variable is missing.  Listing \ref{du_criteria} better exemplifies the different approaches of the DU pairs criterion and the all DU paths criterion:
+
+\begin{minipage}{0.5\textwidth}
+\begin{jcode}[caption={Simple branching code}, label={du_criteria}]
+public void foobar(){
+  int a = 0;
+  int b = Random.nextInt(2);
+  if(b%2 == 0) somethingEven();
+  else somethingOdd();
+  int c = a;
+}
+\end{jcode} 
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+While the all DU pairs criterion would require only the coverage of the pair 
+described by the definition of \texttt{a} at line 2 and its use at line 6 independently of the subsequent 
+branch, the all DU paths criterion requires that both the \texttt{if} and the \texttt{else} 
+paths are exercised.
+\end{minipage}
+
+\paragraph{}
+In this case, a test suite is considered adequate iff, for each non-looping 
+path \textit{dp} of the program, there is at least one test case that covers a path that 
+includes \textit{dp}. The coverage measure deriving from this criterion is:
+
+\begin{center}
+  $C_{DU paths} = \frac{\text{number of exercised non-looping DU paths}}
+  {\text{number of non-looping paths}}$
+\end{center}
+%
+Unfortunately, although in the average case the number of DU paths is quite 
+modest, it can be exponential in the size of the program in the worst case, 
+especially when it contains many control paths. In many cases, this criterion is 
+too costly. 
+
+\paragraph{}
+Under these premises, we decided to focus on the all-DU pairs adequacy criterion, as it is the most popular one
+and features an average level of complexity.
+
+\subsection{Limitations}
+%può andar bene ma contestualizza. Questo è un problema, che in qualche modo ho visto ppoi durante l'implementazione.
+Being a static analysis technique, data flow analysis is an approximation of 
+the program behavior at runtime. As such, it suffers from imprecision when 
+dealing with dynamic access to storage or dynamically allocated storage. For 
+example, in the case of arrays, it is generally not possible to determine if two 
+accesses refer to the same location (see Listing \ref{aliases}). The same problem occurs when dealing with 
+references, as two different names could refer to the same storage location. 
+
+\begin{center}
+\begin{minipage}{0.6\textwidth}
+\begin{jcode}[caption={Are these two lines a DU pair?}, label={aliases}]
+a[i] = 2
+b = a[j]
+\end{jcode} 
+\end{minipage}
+\end{center}
+%
+How to treat these aliases depends on the use of the analysis results. In some 
+cases, some degree of approximation in dealing with this kind of problem may be 
+preferable to very expensive analysis. I observed this problem in my implementation because, 
+in the case of arrays, \datec\ treats every write to an index as a definition of the array, and each access to an 
+index as a use. 
+
+\paragraph{}
+Another limitation of data flow criteria is their applicability: even though 
+data flow test techniques have been suggested to be effective, they are limited 
+by the difficulty of generation of test suites which can guarantee good 
+coverage, and a not so clear understanding of the scalability of the technique in 
+practical approaches. All these factors lead to a lack of tools that apply data 
+flow coverage techniques. %\datec\ and Coverlipse\footnote{\url{http://coverlipse.sourceforge.net.}}
+%are an example, but they suffer from the problems mentioned above.
+
+
+%data flow originariamente definito per programmi procedurali, è stato poi esteso a OO. In questo contesto le coppie non solo possono apparire all'interno di uno stesso metodo, ma anche in metodi diversi, richiedendo casi di test che stimolano in maniera più approfondita una classe rispetto a criteri basati su control flow. 
+%In contesto OO si parla solitamente di coppie intra-metodo, inter-metodo e intra classe.Definizioni.
+%le coppie intra classe sono le più interessanti per il test object oriented e sono quelle sulle quali si concentra datec e conseguentemente il mio tool.
+\subsection{Data flow testing of classes}
+%performed by Harrold and Rothermel \cite{Harrold} 
+Data Flow testing was originally defined for procedural programs. Later studies \cite{Buy},\cite{Harrold},\cite{Pezze2008} showed that data flow testing is particularly suitable for object-oriented programming because object oriented logic focus more on data interactions and dependencies than complex intra procedural logic. In that context, DU pairs can occur not only within the same method, but also across methods, requiring test cases that exercise classes more meticulously than control flow criteria. More specifically, for object oriented data flow we can distinguish between \textit{intra-method} and \textit{inter-method} DU pairs:
+%or \textit{intra-class}
+
+ \begin{itemize}
+   \item \textit{intra-method} DU pairs: the definition and use of a variable occur within the same method, and
+   the pair is exercised during a single invocation of the method;
+   \item \textit{inter-method} DU pairs: The definition and the use of the same variable are in different methods,
+    and the path from the definition to the use can be found by following the method invocations in the control
+    flow graph;
+ \end{itemize}
+
+Harrold and Rothermel \cite{Harrold} extended this approach by considering the data flow through the fields of an object in case that the public method of a class are called in arbitrary order. This is particularly important for isolated classes in which the behavior of a method may depend on the fields' current state. As an example, consider class \texttt{TicketClerk} (Figure \ref{ticketclerk}):
+
+\begin{figure}[t]
+  \begin{minipage}{0.5\textwidth}
+    \begin{jcode}
+public class TicketClerk {
+  private float payedAmount;
+  
+  public TicketClerk(){
+    payedAmount = 0;
+  }
+  
+  public void pay(float amount) {
+    payedAmount += amount;
+  }
+  
+  ...
+}      
+    \end{jcode}
+  \end{minipage}
+  \begin{minipage}{0.5\textwidth}
+    \begin{jcode}
+public class TicketClerk {
+  
+  ...
+  
+  public Ticket getTicket(){
+    if(payedAmount >= Ticket.cost()){
+      payedAmount = 0;
+      return new Ticket();
+    } else 
+   throw new InsufficientAmountException();
+  }
+  
+}    
+    \end{jcode}    
+  \end{minipage}
+  \caption{Behavior of \texttt{getTicket()} depends on previous calls to \texttt{pay()}}
+  \label{ticketclerk}
+\end{figure}
+
+\paragraph{}
+In the example, there is a definition of instance variable \texttt{payedAmount} in method \texttt{getTicket()}; however, this definition will occur only if method \texttt{pay()} has been previously called and the payed value is greater than the cost of the ticket.
+%
+\paragraph{}
+To address this problem, Harrold and Rothermel defined a new category of DU pairs, \textit{intra-class DU pairs}:
+
+\begin{itemize}
+  \item \textit{intra-class} DU pairs: The definition and the use of the same instance variable are in two different 
+   methods, and the path from the definition to the use can be exercised if the two methods are invoked one
+   after the other.
+\end{itemize}
+
+\textit{Intra-class} data flow is the most interesting for the purpose of object-oriented testing and are the coverage targets that are computed by our data flow testing tool.
+
+
+
+
+
+

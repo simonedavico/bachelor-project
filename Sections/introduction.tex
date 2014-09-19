@@ -1,0 +1,111 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction} \label{introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Overview}
+\begin{center}
+\textit{
+``Software is among the most variable and complex of artifacts engineered on a 
+regular basis." \cite{Pezze2008}}
+\end{center}
+%
+With this assumption, it is easy to see why software testing and analysis 
+is fundamental in order to build quality software by finding defects (i.e, bugs).
+It is also natural to think that software that has passed through a set of adequate 
+test cases is probably more reliable than software which s been tested only 
+superficially. \\\\
+%
+These two premises suggest that evaluation and selection of 
+test cases is a key problem: \textbf{how can the thoroughness of a test suite be 
+estabilished?} \\\\
+%
+The intuitive answer to this question would be that a test suite which can 
+ensure correcteness of the software can be considered adequate. However, with 
+programs being vulnerable to undecidability, correctness is impossible to 
+ensure. Test cases suffer from the same problem: with this definition, we could 
+have adequate testing only if we could estabilish correctness without any 
+testing. The solution to this problem is the identification of several criteria 
+which can be used to approximate test cases quality and adequacy. Each of these 
+criteria is based on some source of information in the program, and imposes some 
+requirements that an adequate set of test cases has to satisfy. Succeeding in 
+doing so would not guarantee correctness, but would still be a sign of the effectiveness 
+of the test cases. On the other hand, failure may provide some informations 
+about eventual improvements.
+
+\subsection{Adequacy Criteria}
+As we already mentioned, adequacy criteria can be used as metrics to identify 
+inadequacies in test suites. These criteria can be derived in two ways:
+
+\begin{itemize}
+  \item \textit{Functional criteria} are derived from specifications (the expected behavior of the 
+  program).
+  \item \textit{Structural criteria} are based on the actual structure of the 
+  program (detailed design and source code).
+\end{itemize} 
+ 
+For this Bachelor Project we focused on techniques of structural testing based on 
+code analysis.Test cases can be easily based on software structure by describing a program
+with a well defined model, such as a control flow graph. In this context, a
+common technique for exploiting control flow elements consists in ensuring \textit{statement coverage}, 
+that is requiring that each statement is executed at least once. This is based on the simple assumption 
+that a fault cannot be revealed without executing the statement causing it. 
+Complete statement coverage can be achieved through \textit{branch coverage}, 
+which consists in executing all the possible branches in a program.
+
+There are a number of additional techniques and criteria related to the two 
+aforementioned; nontheless, this approaches are not perfect, as the execution of a faulty 
+statement does not always guarantee a failure for a variety of reasons, such as 
+the data values used, or the corrupt state not propagating in the program,
+resulting in the faulty statement to remain concealed. In addition, the number 
+of paths to be explored can be expontential in the size of the program. There 
+is another class of criteria which better assess the adequacy of a test suite, 
+based on Data Flow models.
+
+\subsection{Data Flow Models}
+
+\textit{Data Flow} adequacy criteria improve the aforementioned structural 
+criteria by selecting relevant paths in the structure of the program based on 
+data flow and interactions. The basic idea is that ``computing the wrong value leads to a 
+failure only when that value is subsequently used". \cite{Pezze2008} 
+
+In order to identify data flow information, we focus on \textit{definitions} and 
+\textit{uses} of variables. 
+
+\begin{itemize}
+\item A \textit{definition} of some variable \textit{v} occurs
+whenever a new value is assigned to that variable.
+
+\item A \textit{use} occurs whenever the value 
+of the variable is exploited: expressions, conditional statements, return statements, and so on. 
+\end{itemize}
+Each use of a variable can be paired with the corresponding definition. 
+Pairing definitions and uses of some variable 
+\textit{v} identifies the data interactions through it, here called \textit{definition-use pairs}, 
+or \textit{DU pairs}.
+
+The \textit{All DU pairs adequacy criterion} requires each DU pair to be covered 
+(exercised) in at least one program execution. A test suite for a program 
+satisfies this criterion iff, for each DU pair \textit{du} of the program, at least one test 
+case exercises \textit{du}.
+
+It is then natural to estabilish the \textit{DU pairs coverage} $C_{DU pairs}$ 
+as the fraction of DU pairs exercised by at least one test case in the test 
+suite:
+\begin{center}
+$$
+C_{DU pairs} = \frac{\text{number of exercised DU pairs}}{\text{number of DU pairs}}
+$$
+\end{center}
+
+The problem with this model is its complexity: determining manually the DU pairs 
+coverage for a test suite is difficult, error prone, and time consuming. This is 
+where the need for an automated tool for coverage computation comes into play. 
+These tools already exists for statement and branch coverage criteria, and were a crucial factor in
+the diffusion of these measures. This is not true for data flow criteria as well. 
+\\\\
+
+
+ 
+
+
+
